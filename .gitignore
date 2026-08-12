@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Cloudflare local secrets — never commit
+.dev.vars
+
+# Cloudflare Wrangler build/cache output
+.wrangler/
