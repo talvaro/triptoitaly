@@ -24,7 +24,7 @@ Key features:
 | Frontend | Vanilla HTML5 + CSS3 + JavaScript (ES2020) |
 | Hosting | Cloudflare Pages |
 | Server-side config | Cloudflare Pages Function (`functions/api/config.js`) |
-| No build step | Plain `<script src>` — no bundler or framework |
+| No build step | Plain `<link>` + `<script src>` — no bundler or framework |
 
 ---
 
@@ -33,6 +33,7 @@ Key features:
 ```
 Browser loads index.html
     │
+    ├─► Loads styles.css        (all page styles via <link>)
     ├─► Loads translations.js  (i18n dictionary + applyTranslations)
     ├─► Loads navigation.js    (showDay / sidebar active state)
     ├─► Loads tour-config.js   (fetches /api/config → sets language, dates, flags)
@@ -60,7 +61,8 @@ Each language button (`data-lang="es|en|it"`) triggers `applyTranslations(lang)`
 
 ```
 triptoitaly/
-├── index.html              # Entire page markup + styles (single file)
+├── index.html              # Pure HTML markup — no inline styles or scripts
+├── styles.css              # All page styles (sidebar, cards, layout, responsive)
 │
 ├── translations.js         # i18n dictionaries (ES/EN/IT) + applyTranslations()
 ├── navigation.js           # showDay(), setActiveMenuItem(), getMenuItemForDay()
