@@ -1288,6 +1288,36 @@ function applyTranslations(lang) {
   
 }
 
+const LANGUAGE_STORAGE_KEY = "triptoitaly.language";
+
+function getSavedLanguage() {
+  try {
+    const lang = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return ["es", "en", "it"].includes(lang) ? lang : null;
+  } catch (error) {
+    console.warn("Unable to read saved language preference.", error);
+    return null;
+  }
+}
+
+function saveLanguage(lang) {
+  try {
+    if (["es", "en", "it"].includes(lang)) {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    }
+  } catch (error) {
+    console.warn("Unable to save language preference.", error);
+  }
+}
+
+function clearSavedLanguage() {
+  localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+}
+
 document.querySelectorAll('.lang-btn').forEach(button => {
-  button.addEventListener('click', () => applyTranslations(button.getAttribute('data-lang')));
+  button.addEventListener('click', () => {
+    const lang = button.getAttribute('data-lang');
+    applyTranslations(lang);
+    saveLanguage(lang);
+  });
 });

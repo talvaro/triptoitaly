@@ -75,7 +75,11 @@ async function initializeSite() {
 
     await loadTourConfiguration();
 
-    applyTranslations(INITIAL_LANGUAGE);
+    const savedLanguage = getSavedLanguage();
+
+    const languageToUse = savedLanguage || INITIAL_LANGUAGE || "es";
+
+    applyTranslations(languageToUse);
 
 }
 
