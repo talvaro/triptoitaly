@@ -48,7 +48,7 @@ deployment with a Pages Function for runtime configuration
     Browser loads index.html
         │
         ├─► Loads styles.css        (all page styles via <link>)
-        ├─► Loads translations.js  (i18n dictionary + applyTranslations)
+        ├─► Loads translations.js  (i18n dictionary + applyTranslations + localStorage helpers)
         ├─► Loads navigation.js    (showDay / sidebar active state)
         ├─► Loads tour-config.js   (fetches /api/config → sets language, dates, flags)
         │       │
@@ -59,6 +59,8 @@ deployment with a Pages Function for runtime configuration
         │
         └─► initializeSite() runs
                 ├─► loadTourConfiguration()  — fetches config from server
+                ├─► getSavedLanguage()       — reads triptoitaly.language from localStorage
+                ├─► language priority: saved → INITIAL_LANGUAGE → "es"
                 ├─► applyTranslations(lang)  — sets all data-i18n elements
                 └─► refreshDayLabels()       — optionally adds dates / checkmarks to sidebar
 
@@ -68,9 +70,11 @@ Clicking a day in the sidebar calls `showDay(dayId)` which toggles the
 router.
 
 **Language switching:**\
-Each language button (`data-lang="es|en|it"`) triggers
-`applyTranslations(lang)`, which replaces all `data-i18n` element
-contents from the in-memory dictionary.
+Each language button (`data-lang="es|en|it"`) triggers `applyTranslations(lang)` and
+`saveLanguage(lang)`, which persists the choice to `localStorage` under the key
+`triptoitaly.language`. On the next visit `getSavedLanguage()` returns the saved code,
+overriding the Cloudflare `INITIAL_LANGUAGE` default. The preference is browser-specific
+and is never written automatically — only on explicit user selection.
 
 ------------------------------------------------------------------------
 
