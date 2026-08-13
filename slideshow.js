@@ -41,7 +41,7 @@ function imageExists(src) {
         const img = new Image();
         img.onload = () => resolve(true);
         img.onerror = () => resolve(false);
-        img.src = src;
+        img.src = src + "?check=" + Date.now();
     });
 }
 
