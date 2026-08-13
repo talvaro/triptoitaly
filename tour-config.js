@@ -82,6 +82,8 @@ async function initializeSite() {
 
     await loadTourConfiguration();
 
+    await loadSidebarImages();
+
     const savedLanguage = getSavedLanguage();
 
     const languageToUse = savedLanguage || INITIAL_LANGUAGE || "es";
