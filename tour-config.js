@@ -88,6 +88,9 @@ async function initializeSite() {
 
     applyTranslations(languageToUse);
 
+    document.getElementById("site-version").textContent =
+    VERSION ? " v" + VERSION : "";
+
 }
 
 /********************************************************************
