@@ -213,5 +213,10 @@ img {
   transition:opacity 1s ease-in-out;
 }
 
-
-
+.site-version {
+    display: block;
+    text-align: center;
+    font-size: 11px;      /* optional */
+    margin-top: 3px;      /* optional */
+    opacity: 0.8;         /* optional */
+}
