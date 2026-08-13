@@ -81,18 +81,17 @@ async function loadTourConfiguration() {
 async function initializeSite() {
 
     await loadTourConfiguration();
-
     await loadSidebarImages();
+    startSidebarSlideshow();
 
     const savedLanguage = getSavedLanguage();
-
-    const languageToUse = savedLanguage || INITIAL_LANGUAGE || "es";
+    const languageToUse =
+        savedLanguage || INITIAL_LANGUAGE || "es";
 
     applyTranslations(languageToUse);
 
     document.getElementById("site-version").textContent =
-    VERSION ? " v" + VERSION : "";
-
+        VERSION ? " v" + VERSION : "";
 }
 
 /********************************************************************
