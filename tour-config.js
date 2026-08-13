@@ -7,6 +7,7 @@ let TOUR_START_DATE = "";
 let SHOW_DATES = false;
 let SHOW_COMPLETED_DAYS = false;
 let INITIAL_LANGUAGE = "es";
+let VERSION = "1.0.0";
 
 /********************************************************************
  * Get Function Variable from host (cloudflare)
@@ -51,7 +52,13 @@ async function loadTourConfiguration() {
       ["es", "en", "it"].includes(lang)
         ? lang
         : "es";
+
+    VERSION =
+      String(config.version || "")
+        .trim()
+        .toLowerCase() || "1.0.0";        
       }
+      
   catch (error) {
 
     console.error(
