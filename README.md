@@ -50,18 +50,21 @@ deployment with a Pages Function for runtime configuration
         ├─► Loads styles.css        (all page styles via <link>)
         ├─► Loads translations.js  (i18n dictionary + applyTranslations + localStorage helpers)
         ├─► Loads navigation.js    (showDay / sidebar active state)
-        ├─► Loads tour-config.js   (fetches /api/config → sets language, dates, flags)
+        ├─► Loads tour-config.js   (fetches /api/config → sets language, dates, flags, version)
         │       │
         │       └─► GET /api/config (Cloudflare Pages Function)
-        │               └─► returns { tourStartDate, showDates, showCompletedDays, initialLanguage }
+        │               └─► returns { tourStartDate, showDates, showCompletedDays, initialLanguage, version }
         │
-        ├─► Loads slideshow.js     (sidebar image rotation)
+        ├─► Loads slideshow.js     (sidebar image discovery + rotation)
         │
         └─► initializeSite() runs
                 ├─► loadTourConfiguration()  — fetches config from server
+            ├─► loadSidebarImages()      — auto-discovers slideshow1.jpg, slideshow2.jpg, ...
+            ├─► startSidebarSlideshow()  — starts rotation if more than one image exists
                 ├─► getSavedLanguage()       — reads triptoitaly.language from localStorage
                 ├─► language priority: saved → INITIAL_LANGUAGE → "es"
                 ├─► applyTranslations(lang)  — sets all data-i18n elements
+            ├─► inject version label     — writes VERSION into the sidebar
                 └─► refreshDayLabels()       — optionally adds dates / checkmarks to sidebar
 
 **User navigation:**\
@@ -84,10 +87,10 @@ and is never written automatically — only on explicit user selection.
     ├── index.html              # Pure HTML markup — no inline styles or scripts
     ├── styles.css              # All page styles (sidebar, cards, layout, responsive)
     │
-    ├── translations.js         # i18n dictionaries (ES/EN/IT) + applyTranslations()
+    ├── translations.js         # i18n dictionaries, applyTranslations(), localStorage language persistence
     ├── navigation.js           # showDay(), setActiveMenuItem(), getMenuItemForDay()
-    ├── tour-config.js          # Config globals, loadTourConfiguration(), refreshDayLabels()
-    ├── slideshow.js            # Sidebar image slideshow
+    ├── tour-config.js          # Runtime config loading, version label injection, initializeSite(), refreshDayLabels()
+    ├── slideshow.js            # Sidebar image auto-discovery and slideshow rotation
     │
     ├── functions/
     │   └── api/
@@ -157,6 +160,9 @@ Cloudflare Pages dashboard (not committed to the repo):
                                               (Italy timezone)
 
   `INITIAL_LANGUAGE`       `"es"/"en"/"it"`   Language loaded on first visit
+
+    `VERSION`                string             Optional version label shown in
+                                                                                            the sidebar
   ---------------------------------------------------------------------------
 
 Local development uses `.dev.vars` (excluded from git) to mirror these
@@ -209,24 +215,25 @@ Cloudflare Pages Function, while the frontend remains entirely static.
 
 ## JavaScript Module Responsibilities
 
-  -----------------------------------------------------------------------
-  Module                  Responsibility
-  ----------------------- -----------------------------------------------
-  `translations.js`       Translation dictionaries (ES/EN/IT),
-                          `applyTranslations()`, `data-i18n` processing
+    -----------------------------------------------------------------------
+    Module                  Responsibility
+    ----------------------- -----------------------------------------------
+    `translations.js`       Translation dictionaries (ES/EN/IT),
+                                                    `applyTranslations()`, `data-i18n` processing,
+                                                    localStorage language persistence helpers
 
-  `navigation.js`         `showDay()`, sidebar navigation, active menu
-                          handling, browser navigation support
+    `navigation.js`         `showDay()`, sidebar navigation, active menu
+                                                    handling
 
-  `tour-config.js`        Runtime configuration, `/api/config`,
-                          `initializeSite()`, `refreshDayLabels()`, date
-                          calculations
+    `tour-config.js`        Runtime configuration, `/api/config`,
+                                                    `initializeSite()`, version label injection,
+                                                    `refreshDayLabels()`, date calculations
 
-  `slideshow.js`          Sidebar image rotation
+    `slideshow.js`          Sidebar image discovery, startup and rotation
 
-  `styles.css`            Layout, cards, responsive behaviour and visual
-                          theme
-  -----------------------------------------------------------------------
+    `styles.css`            Layout, cards, responsive behaviour and visual
+                                                    theme
+    -----------------------------------------------------------------------
 
 ------------------------------------------------------------------------
 
@@ -234,17 +241,25 @@ Cloudflare Pages Function, while the frontend remains entirely static.
 
     Browser
         ↓
-    DOMContentLoaded
-        ↓
     initializeSite()
         ↓
     loadTourConfiguration()
+        ↓
+    loadSidebarImages()
+        ↓
+    startSidebarSlideshow()
+        ↓
+    getSavedLanguage()
+        ↓
+    saved language → INITIAL_LANGUAGE → "es"
         ↓
     GET /api/config
         ↓
     Cloudflare Environment Variables
         ↓
     applyTranslations()
+        ↓
+    Inject version label
         ↓
     refreshDayLabels()
         ↓
@@ -284,6 +299,10 @@ Variables.
   Initial         Invalid `INITIAL_LANGUAGE`  Open `/api/config` and
   language always value                       verify the JSON response
   Spanish                                     
+
+    Saved language  `triptoitaly.language`      Clear localStorage and reload
+    not updating    contains invalid or stale   the page to re-test fallback
+                                    data                        behaviour
 
   Tour dates do   Incorrect `TOUR_START_DATE` Check Cloudflare Environment
   not update                                  Variables and `/api/config`
