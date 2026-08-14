@@ -220,3 +220,10 @@ img {
     margin-top: 3px;      /* optional */
     opacity: 0.8;         /* optional */
 }
+
+.tour-countdown {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    margin: 8px 0 12px 0;
+}

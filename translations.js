@@ -1,6 +1,7 @@
 
 const translations = {
   es: {
+    countdownDays: "⏳ {days} días",
     pageTitle: '✈️ Nuestro tour a Puglia',
     heroTitle: '🇮🇹 NUESTRO TOUR LA PUGLIA A ROMA',
     travelDetailsTitle: 'Detalles de Nuestro Tour',
@@ -382,6 +383,7 @@ const translations = {
     ]
   },
   en: {
+    countdownDays: "⏳ {days} days",
     pageTitle: '✈️ Our trip to Puglia',
     heroTitle: '🇮🇹 OUR PUGLIA TO ROME TOUR',
     travelDetailsTitle: 'Trip Details',
@@ -805,6 +807,7 @@ const translations = {
     ]
   },
   it: {
+    countdownDays: "⏳ {days} giorni",
     pageTitle: '✈️ Il nostro viaggio in Puglia',
     heroTitle: '🇮🇹 IL NOSTRO TOUR DA PUGLIA A ROMA',
     travelDetailsTitle: 'Dettagli del viaggio',
@@ -1285,6 +1288,7 @@ function applyTranslations(lang) {
   });
 
   refreshDayLabels();
+  updateTourCountdown(lang);
   
 }
 

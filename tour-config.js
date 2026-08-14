@@ -120,6 +120,105 @@ function getItalyTodayNumber() {
   );
 }
 
+/********************************************************************
+ * Prepares the countdown element with the number of days remaining
+ ********************************************************************/
+
+function updateTourCountdown(language) {
+
+    const countdownElement =
+        document.getElementById("tour-countdown");
+
+    if (!countdownElement) {
+        return;
+    }
+
+
+    /* No start date */
+
+    if (!TOUR_START_DATE ||
+        TOUR_START_DATE.trim() === "") {
+
+        countdownElement.textContent = "";
+        countdownElement.style.display = "none";
+        return;
+    }
+
+
+    /* Parse configured tour date */
+
+    const [year, month, day] =
+        TOUR_START_DATE.split("-").map(Number);
+
+    const tourDate =
+        Date.UTC(year, month - 1, day);
+
+
+    /* Get today's calendar date in Italy */
+
+    const parts =
+        new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Europe/Rome",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).formatToParts(new Date());
+
+    const values = {};
+
+    parts.forEach(part => {
+        values[part.type] = part.value;
+    });
+
+    const todayItaly =
+        Date.UTC(
+            Number(values.year),
+            Number(values.month) - 1,
+            Number(values.day)
+        );
+
+
+    /* Calculate remaining calendar days */
+
+    const millisecondsPerDay =
+        24 * 60 * 60 * 1000;
+
+    const daysRemaining =
+        Math.round(
+            (tourDate - todayItaly) /
+            millisecondsPerDay
+        );
+
+
+    /* Hide if today or already passed */
+
+    if (daysRemaining <= 0) {
+
+        countdownElement.textContent = "";
+        countdownElement.style.display = "none";
+        return;
+    }
+
+
+    /* Get translated template */
+
+    const dict =
+        translations[language] ||
+        translations.es;
+
+    const template =
+        dict.countdownDays ||
+        "⏳ {days} days";
+
+
+    countdownElement.textContent =
+        template.replace(
+            "{days}",
+            daysRemaining
+        );
+
+    countdownElement.style.display = "block";
+}
 
 /********************************************************************
  * REFRESH DAY LABELS
