@@ -16,12 +16,16 @@ transport logistics, and route maps --- all presented in a clean,
 sidebar-navigated layout.
 
 Key features: - **Multilingual** --- full ES / EN / IT translation with
-a single-click language switcher - **Dynamic day labels** --- optionally
+a single-click language switcher - **Language persistence** --- the last
+user-selected language is stored in browser `localStorage` - **Tour
+countdown** --- shows the number of days remaining until the trip starts,
+localized per selected language - **Dynamic day labels** --- optionally
 shows dates (MM/DD) and ✅ checkmarks for completed days, driven by
 server-side configuration - **Responsive sidebar navigation** ---
 collapses into a drawer on mobile - **Sidebar photo slideshow** ---
-rotates 5 travel images every 4 seconds - **Cloudflare Pages**
-deployment with a Pages Function for runtime configuration
+auto-discovers slideshow images and rotates them every 4 seconds -
+**Cloudflare Pages** deployment with a Pages Function for runtime
+configuration
 
 ------------------------------------------------------------------------
 
@@ -59,12 +63,13 @@ deployment with a Pages Function for runtime configuration
         │
         └─► initializeSite() runs
                 ├─► loadTourConfiguration()  — fetches config from server
-            ├─► loadSidebarImages()      — auto-discovers slideshow1.jpg, slideshow2.jpg, ...
-            ├─► startSidebarSlideshow()  — starts rotation if more than one image exists
+                ├─► loadSidebarImages()      — auto-discovers slideshow1.jpg, slideshow2.jpg, ...
+                ├─► startSidebarSlideshow()  — starts rotation if more than one image exists
                 ├─► getSavedLanguage()       — reads triptoitaly.language from localStorage
                 ├─► language priority: saved → INITIAL_LANGUAGE → "es"
                 ├─► applyTranslations(lang)  — sets all data-i18n elements
-            ├─► inject version label     — writes VERSION into the sidebar
+                ├─► updateTourCountdown()    — renders days remaining until TOUR_START_DATE
+                ├─► inject version label     — writes VERSION into the sidebar
                 └─► refreshDayLabels()       — optionally adds dates / checkmarks to sidebar
 
 **User navigation:**\
@@ -79,17 +84,24 @@ Each language button (`data-lang="es|en|it"`) triggers `applyTranslations(lang)`
 overriding the Cloudflare `INITIAL_LANGUAGE` default. The preference is browser-specific
 and is never written automatically — only on explicit user selection.
 
+**Countdown banner:**\
+The home section includes a countdown badge (`#tour-countdown`) that is updated by
+`updateTourCountdown(lang)`. It uses `TOUR_START_DATE` from `/api/config`, calculates the
+remaining calendar days in the `Europe/Rome` timezone, and renders a localized label using
+the `countdownDays` translation template. The badge is hidden automatically when no start
+date is configured or when the trip date is today or in the past.
+
 ------------------------------------------------------------------------
 
 ## Project Structure
 
     triptoitaly/
-    ├── index.html              # Pure HTML markup — no inline styles or scripts
-    ├── styles.css              # All page styles (sidebar, cards, layout, responsive)
+    ├── index.html              # Pure HTML markup — includes home countdown placeholder and script/css links
+    ├── styles.css              # All page styles (sidebar, cards, countdown, layout, responsive)
     │
-    ├── translations.js         # i18n dictionaries, applyTranslations(), localStorage language persistence
+    ├── translations.js         # i18n dictionaries, applyTranslations(), countdown label templates, localStorage language persistence
     ├── navigation.js           # showDay(), setActiveMenuItem(), getMenuItemForDay()
-    ├── tour-config.js          # Runtime config loading, version label injection, initializeSite(), refreshDayLabels()
+    ├── tour-config.js          # Runtime config loading, countdown calculation, version label injection, initializeSite(), refreshDayLabels()
     ├── slideshow.js            # Sidebar image auto-discovery and slideshow rotation
     │
     ├── functions/
@@ -146,24 +158,11 @@ and is never written automatically — only on explicit user selection.
 Runtime behaviour is controlled via **environment variables** set in the
 Cloudflare Pages dashboard (not committed to the repo):
 
-  ---------------------------------------------------------------------------
-  Variable                 Type               Description
-  ------------------------ ------------------ -------------------------------
-  `TOUR_START_DATE`        `YYYY-MM-DD`       First day of the tour; used to
-                                              calculate dates and
-                                              completed-day markers
-
-  `SHOW_DATES`             `"true"/"false"`   Prepend MM/DD to each sidebar
-                                              day label
-
-  `SHOW_COMPLETED_DAYS`    `"true"/"false"`   Append ✅ to days already past
-                                              (Italy timezone)
-
-  `INITIAL_LANGUAGE`       `"es"/"en"/"it"`   Language loaded on first visit
-
-    `VERSION`                string             Optional version label shown in
-                                                                                            the sidebar
-  ---------------------------------------------------------------------------
+- `TOUR_START_DATE` (`YYYY-MM-DD`): first day of the tour; used for the countdown, sidebar dates, and completed-day markers.
+- `SHOW_DATES` (`"true"/"false"`): prepends `MM/DD` to each sidebar day label.
+- `SHOW_COMPLETED_DAYS` (`"true"/"false"`): appends `✅` to days already past, based on the Italy timezone.
+- `INITIAL_LANGUAGE` (`"es"/"en"/"it"`): default language for browsers with no saved preference.
+- `VERSION` (`string`): optional version label shown in the sidebar.
 
 Local development uses `.dev.vars` (excluded from git) to mirror these
 values.
@@ -215,25 +214,11 @@ Cloudflare Pages Function, while the frontend remains entirely static.
 
 ## JavaScript Module Responsibilities
 
-    -----------------------------------------------------------------------
-    Module                  Responsibility
-    ----------------------- -----------------------------------------------
-    `translations.js`       Translation dictionaries (ES/EN/IT),
-                                                    `applyTranslations()`, `data-i18n` processing,
-                                                    localStorage language persistence helpers
-
-    `navigation.js`         `showDay()`, sidebar navigation, active menu
-                                                    handling
-
-    `tour-config.js`        Runtime configuration, `/api/config`,
-                                                    `initializeSite()`, version label injection,
-                                                    `refreshDayLabels()`, date calculations
-
-    `slideshow.js`          Sidebar image discovery, startup and rotation
-
-    `styles.css`            Layout, cards, responsive behaviour and visual
-                                                    theme
-    -----------------------------------------------------------------------
+- `translations.js`: translation dictionaries (ES/EN/IT), `applyTranslations()`, `data-i18n` processing, countdown label templates, and localStorage language persistence helpers.
+- `navigation.js`: `showDay()`, sidebar navigation, and active-menu handling.
+- `tour-config.js`: runtime configuration loading from `/api/config`, `initializeSite()`, `updateTourCountdown()`, version label injection, `refreshDayLabels()`, and date calculations.
+- `slideshow.js`: sidebar image discovery, slideshow startup, and image rotation.
+- `styles.css`: layout, cards, countdown badge, responsive behavior, and visual theme.
 
 ------------------------------------------------------------------------
 
@@ -249,15 +234,17 @@ Cloudflare Pages Function, while the frontend remains entirely static.
         ↓
     startSidebarSlideshow()
         ↓
-    getSavedLanguage()
-        ↓
-    saved language → INITIAL_LANGUAGE → "es"
-        ↓
     GET /api/config
         ↓
     Cloudflare Environment Variables
         ↓
+    getSavedLanguage()
+        ↓
+    saved language → INITIAL_LANGUAGE → "es"
+        ↓
     applyTranslations()
+        ↓
+    updateTourCountdown()
         ↓
     Inject version label
         ↓
@@ -303,6 +290,11 @@ Variables.
     Saved language  `triptoitaly.language`      Clear localStorage and reload
     not updating    contains invalid or stale   the page to re-test fallback
                                     data                        behaviour
+
+    Countdown       Missing or invalid          Verify `TOUR_START_DATE` in
+    not shown       `TOUR_START_DATE`, or the   `/api/config`; the countdown
+                                    tour date is today/past     hides itself automatically in
+                                                                                            those cases
 
   Tour dates do   Incorrect `TOUR_START_DATE` Check Cloudflare Environment
   not update                                  Variables and `/api/config`
