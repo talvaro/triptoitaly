@@ -30,6 +30,7 @@
   <div class="day-link" onclick="showDay('master')" data-i18n="menuItinerary">🗺 Itinerario</div>
   <div class="day-link" onclick="showDay('transporte')" data-i18n="menuTransport">🚐 Transporte</div>
   <div class="day-link" onclick="showDay('hoteles')" data-i18n="menuHotels">🏨 Hoteles</div>
+  <div class="day-link" onclick="showDay('gallery')" data-i18n="menuGallery">📸 Galería</div>
 
   <div class="day-group">
     <div class="day-group-label" id="day1-label">🟢 Día 1 – Bari → Lecce</div>
@@ -153,7 +154,44 @@
 
 </div>
 
+<!-- PHOTO GALLERY LIGHTBOX -->
+<div id="gallery-lightbox" class="gallery-lightbox" hidden>
+    <button type="button" class="gallery-close"
+            onclick="closeGalleryPhoto()" aria-label="Close">×</button>
+
+    <button type="button" class="gallery-prev"
+            onclick="changeGalleryPhoto(-1)" aria-label="Previous">❮</button>
+
+    <img id="gallery-lightbox-image" alt="">
+
+    <button type="button" class="gallery-next"
+            onclick="changeGalleryPhoto(1)" aria-label="Next">❯</button>
+
+    <div id="gallery-lightbox-caption"></div>
+</div>
+<!-- END PHOTO GALLERY LIGHTBOX -->
+
 <div class="main">
+
+<!-- PHOTO GALLERY SECTION -->
+<div id="gallery" class="day-section">
+
+    <h1 data-i18n="galleryTitle">📸 Galería de Fotos</h1>
+
+    <div class="card">
+        <p data-i18n="galleryDescription">
+            Fotografías de nuestro viaje por Italia.
+        </p>
+
+        <div id="gallery-grid" class="gallery"></div>
+    </div>
+
+    <div class="back-btn" onclick="showDay('home')"
+         data-i18n="backToHome">
+        ⬅ Regreso a Inicio
+    </div>  
+</div>
+    <!-- END PHOTO GALLERY SECTION -->
 
 <div id="home" class="day-section active">
 
@@ -5129,6 +5167,8 @@ Private transfer to Rome.</p>
 <script src="translations.js"></script>
 <script src="navigation.js"></script>
 <script src="slideshow.js"></script>
+<script src="gallery-local.js"></script>
+<script src="gallery.js"></script>
 <script src="tour-config.js"></script>
 
 </body>

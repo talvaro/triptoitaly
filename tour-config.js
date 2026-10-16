@@ -15,6 +15,17 @@ let VERSION = "1.0.0";
 
 async function loadTourConfiguration() {
 
+  if (window.location.protocol === "file:") {
+
+    TOUR_START_DATE = "2026-10-20";
+    SHOW_DATES = true;
+    SHOW_COMPLETED_DAYS = true;
+    INITIAL_LANGUAGE = "it";
+    VERSION = "2.0.01-Local";
+
+    return;
+}
+
   try {
 
     const response = await fetch("/api/config");
@@ -81,6 +92,13 @@ async function loadTourConfiguration() {
 async function initializeSite() {
 
     await loadTourConfiguration();
+    console.log("Runtime config:", {
+      TOUR_START_DATE,
+      SHOW_DATES,
+      SHOW_COMPLETED_DAYS,
+      INITIAL_LANGUAGE,
+      VERSION
+    });
     await loadSidebarImages();
     startSidebarSlideshow();
 

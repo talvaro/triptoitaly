@@ -227,3 +227,144 @@ img {
     font-size: 14px;
     margin: 8px 0 12px 0;
 }
+
+/* PHOTO GALLERY */
+
+.gallery-item {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.gallery-item img {
+    width: 100%;
+    max-width: none;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.04);
+}
+
+.gallery-lightbox[hidden] {
+    display: none;
+}
+
+.gallery-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-lightbox img {
+    width: auto;
+    max-width: 85vw;
+    max-height: 85vh;
+    object-fit: contain;
+}
+
+.gallery-close,
+.gallery-prev,
+.gallery-next {
+    position: absolute;
+    border: 0;
+    background: rgba(0, 0, 0, 0.35);
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    padding: 10px 15px;
+    z-index: 1;
+}
+
+.gallery-close {
+    top: 15px;
+    right: 20px;
+}
+
+.gallery-prev {
+    left: 15px;
+}
+
+.gallery-next {
+    right: 15px;
+}
+
+#gallery-lightbox-caption {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+}
+
+.gallery-item-caption {
+    display: block;
+    padding: 8px 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    color: #333;
+}
+
+/* GALLERY MOBILE LAYOUT */
+
+#gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+#gallery-grid .gallery-item {
+    display: block;
+    width: 100%;
+}
+
+#gallery-grid .gallery-item img {
+    width: 100%;
+    max-width: none;
+    height: 180px;
+    object-fit: cover;
+}
+
+/* Mobile devices */
+@media (max-width: 600px) {
+
+    #gallery-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    #gallery-grid .gallery-item img {
+        height: 130px;
+    }
+
+    #gallery-grid .gallery-item-caption {
+        font-size: 12px;
+        padding: 6px 3px;
+        overflow-wrap: anywhere;
+    }
+
+    .gallery-lightbox img {
+        max-width: 90vw;
+        max-height: 75vh;
+    }
+
+    .gallery-prev {
+        left: 5px;
+    }
+
+    .gallery-next {
+        right: 5px;
+    }
+}
