@@ -1,8 +1,9 @@
 // Local gallery manifest for file:// testing
 const LOCAL_GALLERY_PHOTOS = [
-    { file: "slideshow1.jpg", caption: "Manarola – Cinque Terre, Liguria" },
     { file: "slideshow2.jpg", caption: "Polignano a Mare – Puglia" },
     { file: "slideshow3.jpg", caption: "Alberobello – Puglia" },
     { file: "slideshow4.jpg", caption: "Basilica di Santa Croce – Lecce, Puglia" },
-    { file: "slideshow5.jpg", caption: "Sassi di Matera – Basilicata" }
+    { file: "slideshow5.jpg", caption: "Sassi di Matera – Basilicata" },
+    { file: "slideshow1.jpg", caption: "Arena Colosseum – Roma"}
+
 ];
